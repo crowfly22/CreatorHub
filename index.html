@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreatorHub — Interactive Content Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#09090b;--bg2:#111113;--bg3:#18181b;--bg4:#1f1f23;--bg5:#27272a;
+--glass:rgba(255,255,255,0.025);--glass2:rgba(255,255,255,0.05);--glass3:rgba(255,255,255,0.08);
+--glass4:rgba(255,255,255,0.12);--glass-border:rgba(255,255,255,0.06);--glass-border2:rgba(255,255,255,0.1);
+--text:#fafafa;--text2:#a1a1aa;--text3:#71717a;--text4:#52525b;
+--accent:#818cf8;--accent2:#c084fc;--accent3:#38bdf8;
+--green:#4ade80;--red:#f87171;--amber:#fbbf24;--pink:#f472b6;
+--gradient1:linear-gradient(135deg,var(--accent),var(--accent2));
+--gradient2:linear-gradient(135deg,var(--accent3),var(--accent));
+--gradient3:linear-gradient(135deg,var(--accent2),var(--pink));
+--shadow-sm:0 1px 2px rgba(0,0,0,0.3);
+--shadow:0 4px 16px rgba(0,0,0,0.3);
+--shadow-lg:0 12px 40px rgba(0,0,0,0.4);
+--shadow-xl:0 24px 64px rgba(0,0,0,0.5);
+--shadow-glow:0 0 40px rgba(129,140,248,0.15);
+--radius:12px;--radius-lg:16px;--radius-xl:24px;
+--ease:cubic-bezier(0.16,1,0.3,1);--ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;position:relative}
+/* Background Effects */
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 20% 50%,rgba(129,140,248,0.04),transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(192,132,252,0.03),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(56,189,248,0.02),transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.5}
+/* App Layout */
+.app{display:grid;grid-template-rows:56px 1fr;grid-template-columns:60px 1fr;height:100vh;position:relative;z-index:1}
+/* Topbar */
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(9,9,11,0.8);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:28px;height:28px;border-radius:8px;background:var(--gradient1);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;box-shadow:0 2px 12px rgba(129,140,248,0.3)}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:-0.02em}
+.logo-tag{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-left:4px;padding:2px 6px;background:var(--glass);border:1px solid var(--glass-border);border-radius:4px}
+.topbar-center{display:flex;gap:2px;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:3px}
+.mode-tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.3s var(--ease);color:var(--text3);letter-spacing:0.01em;position:relative;user-select:none}
+.mode-tab:hover{color:var(--text2)}
+.mode-tab.active{background:var(--bg4);color:var(--text);font-weight:600;box-shadow:var(--shadow-sm)}
+.topbar-right{display:flex;gap:6px;align-items:center}
+.btn{padding:7px 14px;border:1px solid var(--glass-border2);border-radius:8px;background:var(--glass);color:var(--text2);font-size:11.5px;font-weight:500;cursor:pointer;transition:all 0.3s var(--ease);font-family:inherit;letter-spacing:0.01em;display:flex;align-items:center;gap:6px}
+.btn:hover{background:var(--glass2);color:var(--text);border-color:rgba(255,255,255,0.15);transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn:active{transform:translateY(0);box-shadow:none}
+.btn-primary{background:var(--gradient1);border:none;color:#fff;font-weight:600;box-shadow:0 2px 16px rgba(129,140,248,0.25)}
+.btn-primary:hover{box-shadow:0 4px 24px rgba(129,140,248,0.4);transform:translateY(-1px)}
+.btn-ghost{border:none;background:transparent;color:var(--text3)}
+.btn-ghost:hover{color:var(--text);background:var(--glass)}
+/* Sidebar */
+.sidebar{grid-row:2;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:2px;background:rgba(9,9,11,0.6);backdrop-filter:blur(16px);border-right:1px solid var(--glass-border);overflow-y:auto}
+.sidebar .tool{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;transition:all 0.25s var(--ease);color:var(--text4);font-size:16px;position:relative}
+.sidebar .tool:hover{background:var(--glass2);color:var(--text2)}
+.sidebar .tool.active{background:rgba(129,140,248,0.1);color:var(--accent)}
+.sidebar .tool .tooltip{position:absolute;left:52px;background:var(--bg3);color:var(--text);padding:5px 10px;border-radius:6px;font-size:10.5px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:999;border:1px solid var(--glass-border2);box-shadow:var(--shadow-lg)}
+.sidebar .tool:hover .tooltip{opacity:1}
+.sidebar .divider{width:24px;height:1px;background:var(--glass-border);margin:6px 0}
+/* Main Content */
+.main{position:relative;overflow:hidden}
+/* === STORY MODE === */
+.story-workspace{display:none;height:100%;flex-direction:row}
+.story-workspace.active{display:flex}
+.story-sidebar{width:280px;border-right:1px solid var(--glass-border);background:var(--glass);display:flex;flex-direction:column;overflow:hidden}
+.story-sidebar-header{padding:16px 20px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between}
+.story-sidebar-header h3{font-size:13px;font-weight:600;letter-spacing:-0.01em}
+.story-list{flex:1;overflow-y:auto;padding:8px}
+.story-node{padding:12px 16px;border-radius:10px;cursor:pointer;transition:all 0.25s var(--ease);border:1px solid transparent;margin-bottom:4px}
+.story-node:hover{background:var(--glass2);border-color:var(--glass-border)}
+.story-node.active{background:rgba(129,140,248,0.08);border-color:rgba(129,140,248,0.2)}
+.story-node .node-title{font-size:12.5px;font-weight:600;margin-bottom:4px}
+.story-node .node-preview{font-size:11px;color:var(--text3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.story-node .node-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600;margin-top:6px;background:rgba(129,140,248,0.1);color:var(--accent);letter-spacing:0.05em;text-transform:uppercase}
+.story-canvas{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.story-editor{flex:1;display:flex;flex-direction:column;padding:24px;overflow-y:auto}
+.story-editor textarea{flex:1;background:transparent;border:none;color:var(--text);font-size:15px;line-height:1.8;font-family:'Inter',sans-serif;resize:none;outline:none;letter-spacing:-0.01em}
+.story-editor textarea::placeholder{color:var(--text4)}
+.story-choices{padding:16px 24px;border-top:1px solid var(--glass-border);display:flex;flex-direction:column;gap:8px}
+.choice-card{padding:12px 16px;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;cursor:pointer;transition:all 0.25s var(--ease);display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--text2)}
+.choice-card:hover{border-color:var(--accent);background:rgba(129,140,248,0.05);color:var(--text);transform:translateX(4px)}
+.choice-card .arrow{color:var(--text4);transition:all 0.25s var(--ease)}
+.choice-card:hover .arrow{color:var(--accent);transform:translateX(4px)}
+.add-choice{padding:10px 16px;border:1px dashed var(--glass-border2);border-radius:10px;cursor:pointer;transition:all 0.25s var(--ease);text-align:center;font-size:11.5px;color:var(--text4)}
+.add-choice:hover{border-color:var(--accent);color:var(--accent);background:rgba(129,140,248,0.03)}
+/* === QUIZ MODE === */
+.quiz-workspace{display:none;height:100%;flex-direction:row}
+.quiz-workspace.active{display:flex}
+.quiz-builder{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.quiz-header{padding:20px 28px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between}
+.quiz-header h2{font-size:18px;font-weight:700;letter-spacing:-0.02em}
+.quiz-content{flex:1;overflow-y:auto;padding:24px 28px}
+.quiz-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;transition:all 0.3s var(--ease)}
+.quiz-card:hover{border-color:var(--glass-border2);box-shadow:var(--shadow)}
+.quiz-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.quiz-card-num{font-size:11px;font-weight:700;color:var(--accent);background:rgba(129,140,248,0.1);padding:3px 10px;border-radius:6px;letter-spacing:0.05em}
+.quiz-card-type{font-size:10px;color:var(--text3);padding:3px 8px;background:var(--glass2);border-radius:4px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
+.quiz-card textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:14px;font-weight:500;font-family:inherit;resize:none;outline:none;min-height:40px}
+.quiz-card textarea::placeholder{color:var(--text4)}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.quiz-option{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;cursor:pointer;transition:all 0.25s var(--ease);font-size:13px;color:var(--text2)}
+.quiz-option:hover{border-color:var(--glass-border2);background:var(--glass2)}
+.quiz-option.correct{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.05)}
+.quiz-option .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--glass-border2);transition:all 0.25s var(--ease);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.quiz-option.correct .radio{border-color:var(--green);background:rgba(74,222,128,0.15)}
+.quiz-option.correct .radio::after{content:'✓';font-size:10px;color:var(--green)}
+.quiz-sidebar{width:300px;border-left:1px solid var(--glass-border);background:var(--glass);display:flex;flex-direction:column;overflow:hidden}
+.quiz-sidebar-header{padding:16px 20px;border-bottom:1px solid var(--glass-border)}
+.quiz-sidebar-header h3{font-size:13px;font-weight:600}
+.quiz-settings{padding:16px 20px;overflow-y:auto;flex:1}
+.setting-group{margin-bottom:20px}
+.setting-label{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.setting-input{width:100%;padding:10px 14px;background:var(--glass);border:1px solid var(--glass-border2);border-radius:8px;color:var(--text);font-size:12.5px;font-family:inherit;outline:none;transition:all 0.3s var(--ease)}
+.setting-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(129,140,248,0.1)}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.toggle-label{font-size:12.5px;color:var(--text2)}
+.toggle-switch{width:36px;height:20px;border-radius:10px;background:var(--bg4);cursor:pointer;transition:all 0.3s var(--ease);position:relative}
+.toggle-switch.on{background:var(--accent)}
+.toggle-switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:all 0.3s var(--ease-spring)}
+.toggle-switch.on::after{left:18px}
+/* === CODE MODE === */
+.code-workspace{display:none;height:100%;flex-direction:row}
+.code-workspace.active{display:flex}
+.code-editor-pane{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--glass-border);overflow:hidden}
+.code-tabs{display:flex;border-bottom:1px solid var(--glass-border);background:var(--glass);padding:0 12px}
+.code-tab{padding:10px 16px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.25s var(--ease);font-family:'JetBrains Mono',monospace}
+.code-tab:hover{color:var(--text2)}
+.code-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.code-area{flex:1;overflow:hidden;position:relative}
+.code-area textarea{width:100%;height:100%;background:var(--bg);border:none;color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;padding:16px 20px;resize:none;outline:none;tab-size:2}
+.code-area textarea::placeholder{color:var(--text4)}
+.code-preview-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.preview-header{padding:10px 16px;border-bottom:1px solid var(--glass-border);background:var(--glass);display:flex;align-items:center;justify-content:space-between}
+.preview-header .label{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.preview-header .url-bar{flex:1;margin:0 16px;padding:5px 12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:6px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.preview-frame{flex:1;background:#fff;border:none}
+.code-console{height:140px;border-top:1px solid var(--glass-border);display:flex;flex-direction:column}
+.console-header{padding:8px 16px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;background:var(--glass)}
+.console-header .label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.console-body{flex:1;overflow-y:auto;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;color:var(--text3)}
+.console-line{display:flex;gap:8px}
+.console-line .prefix{color:var(--text4);user-select:none}
+.console-line.error{color:var(--red)}
+.console-line.warn{color:var(--amber)}
+.console-line.info{color:var(--accent3)}
+/* Templates Panel */
+.templates-panel{position:absolute;top:0;right:0;width:340px;height:100%;background:linear-gradient(180deg,var(--bg2),var(--bg3));border-left:1px solid var(--glass-border);box-shadow:var(--shadow-xl);z-index:50;display:none;flex-direction:column;backdrop-filter:blur(20px)}
+.templates-panel.show{display:flex}
+.templates-header{padding:20px 24px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between}
+.templates-header h3{font-size:14px;font-weight:700;letter-spacing:-0.01em}
+.templates-body{flex:1;overflow-y:auto;padding:16px 20px}
+.template-card{padding:16px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);cursor:pointer;transition:all 0.3s var(--ease);margin-bottom:10px}
+.template-card:hover{border-color:var(--accent);background:rgba(129,140,248,0.03);transform:translateY(-2px);box-shadow:var(--shadow)}
+.template-card .t-icon{font-size:24px;margin-bottom:10px}
+.template-card .t-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.template-card .t-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.template-card .t-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600;margin-top:8px;text-transform:uppercase;letter-spacing:0.08em;background:rgba(129,140,248,0.1);color:var(--accent)}
+/* Statusbar */
+.statusbar{position:absolute;bottom:0;left:60px;right:0;height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(9,9,11,0.9);backdrop-filter:blur(12px);border-top:1px solid var(--glass-border);font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--text4);z-index:90}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:8px;animation:statusPulse 2s ease infinite}
+@keyframes statusPulse{0%,100%{opacity:1;box-shadow:0 0 4px var(--green)}50%{opacity:0.5;box-shadow:none}}
+/* Toast */
+.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--bg3);border:1px solid var(--glass-border2);border-radius:10px;padding:10px 20px;font-size:12px;color:var(--text);box-shadow:var(--shadow-xl);z-index:999;opacity:0;transition:all 0.4s var(--ease);pointer-events:none;backdrop-filter:blur(16px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.fade-in{animation:fadeIn 0.4s var(--ease) both}
+.slide-in{animation:slideIn 0.4s var(--ease) both}
+.scale-in{animation:scaleIn 0.3s var(--ease) both}
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--glass-border2);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--text4)}
+/* Responsive */
+@media(max-width:768px){
+.app{grid-template-columns:48px 1fr}
+.story-sidebar,.quiz-sidebar{display:none}
+}
+/* Add button glow */
+.btn-add{background:var(--gradient1);border:none;color:#fff;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all 0.3s var(--ease);box-shadow:0 2px 12px rgba(129,140,248,0.2)}
+.btn-add:hover{box-shadow:0 4px 20px rgba(129,140,248,0.4);transform:scale(1.05)}
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;pointer-events:none}
+.empty-state .icon{font-size:40px;margin-bottom:16px;opacity:0.2}
+.empty-state h3{font-size:16px;font-weight:600;color:var(--text3);margin-bottom:6px}
+.empty-state p{font-size:12px;color:var(--text4);max-width:280px;text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+<div class="logo">
+<div class="logo-icon">C</div>
+<span class="logo-text">CreatorHub</span>
+<span class="logo-tag">BETA</span>
+</div>
+<div class="topbar-center">
+<div class="mode-tab active" data-mode="story" onclick="switchMode('story')">Story</div>
+<div class="mode-tab" data-mode="quiz" onclick="switchMode('quiz')">Quiz</div>
+<div class="mode-tab" data-mode="code" onclick="switchMode('code')">Code</div>
+</div>
+<div class="topbar-right">
+<button class="btn btn-ghost" onclick="toggleTemplates()">⬡ Templates</button>
+<button class="btn" onclick="shareContent()">↗ Share</button>
+<button class="btn btn-primary" onclick="exportContent()">⤓ Export</button>
+</div>
+</header>
+<nav class="sidebar">
+<div class="tool active" data-tool="select" onclick="setTool(this)">⊹<span class="tooltip">Select</span></div>
+<div class="tool" data-tool="add" onclick="addNode()">＋<span class="tooltip">Add Node</span></div>
+<div class="tool" data-tool="link" onclick="setTool(this)">⤻<span class="tooltip">Link</span></div>
+<div class="divider"></div>
+<div class="tool" data-tool="preview" onclick="togglePreview()">▷<span class="tooltip">Preview</span></div>
+<div class="tool" data-tool="tree" onclick="showToast('Tree view')">☴<span class="tooltip">Tree View</span></div>
+<div class="divider"></div>
+<div class="tool" data-tool="theme" onclick="showToast('Theme editor')">◐<span class="tooltip">Theme</span></div>
+<div class="tool" data-tool="settings" onclick="showToast('Settings')">⚙<span class="tooltip">Settings</span></div>
+</nav>
+<main class="main">
+<!-- Story Mode -->
+<div class="story-workspace active" id="storyWorkspace">
+<div class="story-sidebar">
+<div class="story-sidebar-header">
+<h3>Scenes</h3>
+<div class="btn-add" onclick="addScene()">+</div>
+</div>
+<div class="story-list" id="storyList"></div>
+</div>
+<div class="story-canvas">
+<div class="story-editor">
+<textarea id="storyText" placeholder="Write your story here...&#10;&#10;Begin typing to create your interactive narrative. Use the choices below to add branching paths."></textarea>
+</div>
+<div class="story-choices" id="storyChoices">
+<div class="choice-card" onclick="showToast('Edit choice')">
+<span>→ Go through the door</span>
+<span class="arrow">›</span>
+</div>
+<div class="choice-card" onclick="showToast('Edit choice')">
+<span>→ Look out the window</span>
+<span class="arrow">›</span>
+</div>
+<div class="add-choice" onclick="addChoice()">+ Add Choice</div>
+</div>
+</div>
+</div>
+<!-- Quiz Mode -->
+<div class="quiz-workspace" id="quizWorkspace">
+<div class="quiz-builder">
+<div class="quiz-header">
+<h2 id="quizTitle">Untitled Quiz</h2>
+<button class="btn-add" onclick="addQuestion()">+</button>
+</div>
+<div class="quiz-content" id="quizContent"></div>
+</div>
+<div class="quiz-sidebar">
+<div class="quiz-sidebar-header">
+<h3>Settings</h3>
+</div>
+<div class="quiz-settings">
+<div class="setting-group">
+<div class="setting-label">Quiz Title</div>
+<input class="setting-input" value="Untitled Quiz" onchange="document.getElementById('quizTitle').textContent=this.value">
+</div>
+<div class="setting-group">
+<div class="setting-label">Time Limit</div>
+<input class="setting-input" type="number" value="30" placeholder="seconds">
+</div>
+<div class="setting-group">
+<div class="toggle">
+<span class="toggle-label">Show correct answers</span>
+<div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle">
+<span class="toggle-label">Randomize order</span>
+<div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle">
+<span class="toggle-label">Show leaderboard</span>
+<div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+</div>
+</div>
+<div class="setting-group">
+<div class="setting-label">Passing Score (%)</div>
+<input class="setting-input" type="number" value="70" placeholder="70">
+</div>
+<div class="setting-group">
+<div class="setting-label">Theme</div>
+<select class="setting-input">
+<option>Dark (Default)</option>
+<option>Light</option>
+<option>Midnight</option>
+<option>Sunset</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Code Mode -->
+<div class="code-workspace" id="codeWorkspace">
+<div class="code-editor-pane">
+<div class="code-tabs">
+<div class="code-tab active" data-lang="html" onclick="switchCodeTab('html')">index.html</div>
+<div class="code-tab" data-lang="css" onclick="switchCodeTab('css')">style.css</div>
+<div class="code-tab" data-lang="js" onclick="switchCodeTab('js')">script.js</div>
+</div>
+<div class="code-area">
+<textarea id="codeEditor" spellcheck="false" placeholder="Write your code here..."></textarea>
+</div>
+<div class="code-console">
+<div class="console-header">
+<span class="label">Console</span>
+<span style="font-size:10px;color:var(--text4);cursor:pointer" onclick="document.getElementById('consoleBody').innerHTML=''">Clear</span>
+</div>
+<div class="code-console-body" id="consoleBody">
+<div class="console-line info"><span class="prefix">ℹ</span> Ready. Write HTML, CSS, or JavaScript and see live preview.</div>
+</div>
+</div>
+</div>
+<div class="code-preview-pane">
+<div class="preview-header">
+<span class="label">Preview</span>
+<div class="url-bar">localhost:3000</div>
+<button class="btn" style="font-size:10px;padding:4px 10px" onclick="runCode()">▶ Run</button>
+</div>
+<iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts"></iframe>
+</div>
+</div>
+<!-- Templates Panel -->
+<div class="templates-panel" id="templatesPanel">
+<div class="templates-header">
+<h3>Templates</h3>
+<div class="panel-close" onclick="toggleTemplates()" style="cursor:pointer;color:var(--text3);font-size:14px">✕</div>
+</div>
+<div class="templates-body">
+<div class="template-card" onclick="loadTemplate('adventure')">
+<div class="t-icon">⚔️</div>
+<div class="t-title">Fantasy Adventure</div>
+<div class="t-desc">A classic choose-your-own-adventure with magic, quests, and branching paths</div>
+<span class="t-tag">Story</span>
+</div>
+<div class="template-card" onclick="loadTemplate('mystery')">
+<div class="t-icon">🔍</div>
+<div class="t-title">Mystery Detective</div>
+<div class="t-desc">Solve a crime by gathering clues and interrogating suspects</div>
+<span class="t-tag">Story</span>
+</div>
+<div class="template-card" onclick="loadTemplate('scifi')">
+<div class="t-icon">🚀</div>
+<div class="t-title">Sci-Fi Explorer</div>
+<div class="t-desc">Navigate through space, make first contact, explore alien worlds</div>
+<span class="t-tag">Story</span>
+</div>
+<div class="template-card" onclick="loadTemplate('quiz-science')">
+<div class="t-icon">🧪</div>
+<div class="t-title">Science Quiz</div>
+<div class="t-desc">10 questions about physics, chemistry, and biology</div>
+<span class="t-tag">Quiz</span>
+</div>
+<div class="template-card" onclick="loadTemplate('quiz-coding')">
+<div class="t-icon">💻</div>
+<div class="t-title">Coding Challenge</div>
+<div class="t-desc">Test your JavaScript knowledge with interactive questions</div>
+<span class="t-tag">Quiz</span>
+</div>
+<div class="template-card" onclick="loadTemplate('code-landing')">
+<div class="t-icon">🎨</div>
+<div class="t-title">Landing Page</div>
+<div class="t-desc">Modern SaaS landing page with animations and glassmorphism</div>
+<span class="t-tag">Code</span>
+</div>
+<div class="template-card" onclick="loadTemplate('code-game')">
+<div class="t-icon">🎮</div>
+<div class="t-title">Snake Game</div>
+<div class="t-desc">Classic snake game built with Canvas API</div>
+<span class="t-tag">Code</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="statusbar">
+<div style="display:flex;align-items:center"><span class="status-dot"></span>Ready</div>
+<div style="display:flex;gap:20px">
+<span id="statusMode">Mode: Story</span>
+<span id="statusNodes">Nodes: 3</span>
+<span>Powered by MiMo V2.5 Pro</span>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// State
+let currentMode='story',currentTool='select';
+let storyScenes=[
+{id:1,title:'Opening',text:'You wake up in a dimly lit room. The air smells of old books and candle wax. A heavy wooden door stands before you, slightly ajar. Through the window, you see a strange purple sky.',choices:[{text:'Go through the door',target:2},{text:'Look out the window',target:3}]},
+{id:2,title:'The Hallway',text:'You step into a long corridor. Paintings line the walls, their eyes seeming to follow you. At the end, a staircase descends into darkness. To your right, a faint light glows under a door.',choices:[{text:'Descend the staircase',target:4},{text:'Enter the lit room',target:5}]},
+{id:3,title:'The Window',text:'The sky is unlike anything you have ever seen — swirling purple and gold, with two moons hanging low. Below, a vast garden stretches out, filled with luminescent flowers. A ladder leans against the wall outside.',choices:[{text:'Climb down the ladder',target:6},{text:'Go through the door instead',target:2}]}
+];
+let quizQuestions=[
+{type:'multiple',question:'What is the capital of France?',options:['London','Berlin','Paris','Madrid'],correct:2},
+{type:'truefalse',question:'The Earth is flat.',options:['True','False'],correct:1},
+{type:'multiple',question:'Which planet is known as the Red Planet?',options:['Venus','Mars','Jupiter','Saturn'],correct:1}
+];
+let activeScene=0,activeQuestion=0;
+// Mode switching
+function switchMode(mode){
+currentMode=mode;
+document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
+document.getElementById('storyWorkspace').classList.toggle('active',mode==='story');
+document.getElementById('quizWorkspace').classList.toggle('active',mode==='quiz');
+document.getElementById('codeWorkspace').classList.toggle('active',mode==='code');
+document.getElementById('statusMode').textContent='Mode: '+mode.charAt(0).toUpperCase()+mode.slice(1);
+if(mode==='story')renderStory();
+if(mode==='quiz')renderQuiz();
+if(mode==='code')initCodeEditor();
+}
+function setTool(el){
+currentTool=el.dataset.tool;
+document.querySelectorAll('.sidebar .tool').forEach(t=>t.classList.remove('active'));
+el.classList.add('active');
+}
+// Toast
+function showToast(msg){
+const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),2000);
+}
+// Templates
+function toggleTemplates(){
+document.getElementById('templatesPanel').classList.toggle('show');
+}
+// Story
+function renderStory(){
+const list=document.getElementById('storyList');
+list.innerHTML=storyScenes.map((s,i)=>`
+<div class="story-node ${i===activeScene?'active':''}" onclick="selectScene(${i})">
+<div class="node-title">${s.title}</div>
+<div class="node-preview">${s.text.substring(0,80)}...</div>
+<span class="node-badge">${s.choices.length} choice${s.choices.length!==1?'s':''}</span>
+</div>
+`).join('');
+const scene=storyScenes[activeScene];
+if(scene){
+document.getElementById('storyText').value=scene.text;
+document.getElementById('storyChoices').innerHTML=scene.choices.map((c,i)=>`
+<div class="choice-card" onclick="showToast('Navigate to: ${c.text}')">
+<span>→ ${c.text}</span>
+<span class="arrow">›</span>
+</div>
+`).join('')+'<div class="add-choice" onclick="addChoice()">+ Add Choice</div>';
+}
+document.getElementById('statusNodes').textContent='Nodes: '+storyScenes.length;
+}
+function selectScene(i){activeScene=i;renderStory()}
+function addScene(){
+storyScenes.push({id:storyScenes.length+1,title:'Scene '+(storyScenes.length+1),text:'',choices:[]});
+activeScene=storyScenes.length-1;
+renderStory();
+showToast('Scene added');
+}
+function addChoice(){
+const scene=storyScenes[activeScene];
+if(!scene)return;
+const newScene={id:storyScenes.length+1,title:'New Scene',text:'Write here...',choices:[]};
+storyScenes.push(newScene);
+scene.choices.push({text:'New choice',target:newScene.id});
+renderStory();
+showToast('Choice added');
+}
+// Quiz
+function renderQuiz(){
+const content=document.getElementById('quizContent');
+content.innerHTML=quizQuestions.map((q,i)=>`
+<div class="quiz-card fade-in" style="animation-delay:${i*0.05}s">
+<div class="quiz-card-header">
+<span class="quiz-card-num">Q${i+1}</span>
+<span class="quiz-card-type">${q.type}</span>
+</div>
+<textarea placeholder="Enter your question...">${q.question}</textarea>
+<div class="quiz-options">
+${q.options.map((o,j)=>`
+<div class="quiz-option ${j===q.correct?'correct':''}" onclick="setCorrect(${i},${j})">
+<div class="radio"></div>
+<span>${o}</span>
+</div>
+`).join('')}
+</div>
+</div>
+`).join('');
+document.getElementById('statusNodes').textContent='Questions: '+quizQuestions.length;
+}
+function addQuestion(){
+quizQuestions.push({type:'multiple',question:'',options:['Option A','Option B','Option C','Option D'],correct:0});
+activeQuestion=quizQuestions.length-1;
+renderQuiz();
+showToast('Question added');
+}
+function setCorrect(qi,oi){
+quizQuestions[qi].correct=oi;
+renderQuiz();
+}
+// Code
+function initCodeEditor(){
+const editor=document.getElementById('codeEditor');
+if(!editor.value){
+editor.value=`<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0f;
+    color: #e8e6f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 400px;
+    text-align: center;
+    backdrop-filter: blur(20px);
+  }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+  .btn {
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    border: none; color: #fff;
+    padding: 12px 32px; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hello World ✦</h1>
+    <p>Edit this code and click Run to see live changes in the preview pane.</p>
+    <button class="btn" onclick="alert('Clicked!')">Click Me</button>
+  </div>
+</body>
+</html>`;
+}
+runCode();
+}
+function switchCodeTab(lang){
+document.querySelectorAll('.code-tab').forEach(t=>t.classList.toggle('active',t.dataset.lang===lang));
+}
+function runCode(){
+const code=document.getElementById('codeEditor').value;
+const frame=document.getElementById('previewFrame');
+const doc=frame.contentDocument||frame.contentWindow.document;
+doc.open();doc.write(code);doc.close();
+addConsole('info','Preview updated');
+}
+function addConsole(type,msg){
+const body=document.getElementById('consoleBody');
+const prefixes={log:'›',info:'ℹ',warn:'⚠',error:'✗'};
+body.innerHTML+=`<div class="console-line ${type}"><span class="prefix">${prefixes[type]||'›'}</span> ${msg}</div>`;
+body.scrollTop=body.scrollHeight;
+}
+// Templates
+function loadTemplate(name){
+switchMode('story');
+if(name==='adventure'){
+storyScenes=[{id:1,title:'The Tavern',text:'You sit in a noisy tavern. A mysterious figure in the corner beckons you over. The barkeep slides you a note: "The dragon wakes at dawn."',choices:[{text:'Approach the figure',target:2},{text:'Read the note carefully',target:3},{text:'Order another drink',target:4}]}];
+activeScene=0;
+}
+toggleTemplates();
+renderStory();
+showToast('Template loaded: '+name);
+}
+// Share / Export
+function shareContent(){
+const data=currentMode==='story'?JSON.stringify(storyScenes):currentMode==='quiz'?JSON.stringify(quizQuestions):document.getElementById('codeEditor').value;
+const encoded=btoa(unescape(encodeURIComponent(data)));
+const url=window.location.origin+window.location.pathname+'#'+currentMode+'='+encoded.substring(0,50);
+navigator.clipboard.writeText(url);
+showToast('Share link copied!');
+}
+function exportContent(){
+showToast('Exported as HTML');
+}
+// Story text sync
+document.getElementById('storyText')?.addEventListener('input',e=>{
+if(storyScenes[activeScene]){
+storyScenes[activeScene].text=e.target.value;
+renderStory();
+}
+});
+// Init
+renderStory();
+</script>
+</body>
+</html>
